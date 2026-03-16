@@ -1,0 +1,1 @@
+#Lógica de cada thread por cliente
