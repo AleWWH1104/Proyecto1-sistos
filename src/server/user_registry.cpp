@@ -10,10 +10,11 @@ bool UserRegistry::register_user(const std::string &username,
     if (users_.count(username))
         return false;
 
-    // Reject duplicate IP
-    for (const auto &[name, info] : users_)
-        if (info.ip == ip)
-            return false;
+    // Reject duplicate IP — comentar para pruebas locales,
+    // descomentar para el dia de la entrega (maquinas distintas)
+    // for (const auto &[name, info] : users_)
+    //     if (info.ip == ip)
+    //         return false;
 
     users_[username]    = {ip, sockfd, UserStatus::ACTIVE};
     fd_to_name_[sockfd] = username;
