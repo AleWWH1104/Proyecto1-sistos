@@ -41,7 +41,7 @@ public:
     // Returns true if user found, false otherwise.
     bool change_status(const std::string &username, chat::StatusEnum status);
 
-    // Find username by socket fd. Returns empty string if not found. O(n) scan.
+    // Find username by socket fd. Returns empty string if not found. O(1) via reverse map.
     std::string get_username_by_fd(int fd);
 
     // Send a framed message to all connected users except exclude_username.
@@ -64,5 +64,6 @@ public:
 
 private:
     std::unordered_map<std::string, UserInfo> users_;
+    std::unordered_map<int, std::string> fd_to_name_; // O(1) fd→username reverse map
     mutable std::mutex mtx_;
 };

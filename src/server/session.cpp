@@ -191,6 +191,12 @@ void handle_session(int client_fd, const std::string &client_ip,
                 send_server_response(client_fd, 404,
                                      "User not found or disconnected", false);
             }
+            else
+            {
+                // Confirm DM sent to sender
+                send_server_response(client_fd, 200,
+                                     "Mensaje enviado a " + target, true);
+            }
             break;
         }
 

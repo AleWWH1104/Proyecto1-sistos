@@ -16,6 +16,14 @@ constexpr int BACKLOG = 10;
 constexpr int INACTIVITY_CHECK_INTERVAL = 30; // seconds between scans
 constexpr int INACTIVITY_TIMEOUT = 60;        // seconds before auto-INVISIBLE
 
+// Graceful shutdown support
+static int g_server_fd = -1;
+
+void shutdown_handler(int) {
+    std::cout << "\n[Server] Shutting down..." << std::endl;
+    if (g_server_fd >= 0) close(g_server_fd);
+}
+
 // Inactivity checker thread function — runs forever, scanning all users
 // every INACTIVITY_CHECK_INTERVAL seconds.
 void inactivity_checker(UserRegistry &registry) {
@@ -36,12 +44,19 @@ int main(int argc, char *argv[]) {
     // Ignore SIGPIPE globally — belt-and-suspenders with MSG_NOSIGNAL in send_exact()
     signal(SIGPIPE, SIG_IGN);
 
+    // Register graceful shutdown handlers for SIGINT (Ctrl+C) and SIGTERM
+    signal(SIGINT, shutdown_handler);
+    signal(SIGTERM, shutdown_handler);
+
     // 2. Create TCP socket
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
         perror("socket");
         return 1;
     }
+
+    // Store server fd for graceful shutdown handler
+    g_server_fd = server_fd;
 
     // 3. Set SO_REUSEADDR for quick restart after crash/kill
     int opt = 1;
@@ -81,8 +96,7 @@ int main(int argc, char *argv[]) {
 
         int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
         if (client_fd < 0) {
-            perror("accept");
-            continue; // non-fatal — keep accepting
+            break; // accept failed (likely due to signal closing server_fd) — exit loop
         }
 
         // Get client IP from accepted connection (authoritative, not from Register msg)

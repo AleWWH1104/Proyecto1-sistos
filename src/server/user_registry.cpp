@@ -34,13 +34,19 @@ bool UserRegistry::register_user(const std::string &username,
     ui.inactive_auto = false;
 
     users_[username] = std::move(ui);
+    fd_to_name_[socket_fd] = username;
     return true;
 }
 
 bool UserRegistry::unregister_user(const std::string &username)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-    return users_.erase(username) > 0;
+    auto it = users_.find(username);
+    if (it == users_.end())
+        return false;
+    fd_to_name_.erase(it->second.socket_fd);
+    users_.erase(it);
+    return true;
 }
 
 std::vector<std::pair<std::string, chat::StatusEnum>> UserRegistry::list_users()
@@ -85,12 +91,9 @@ bool UserRegistry::change_status(const std::string &username,
 std::string UserRegistry::get_username_by_fd(int fd)
 {
     std::lock_guard<std::mutex> lock(mtx_);
-
-    for (const auto &[name, info] : users_)
-    {
-        if (info.socket_fd == fd)
-            return name;
-    }
+    auto it = fd_to_name_.find(fd);
+    if (it != fd_to_name_.end())
+        return it->second;
     return "";
 }
 
