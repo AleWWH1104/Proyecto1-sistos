@@ -7,6 +7,9 @@ gen/
 /chat_server
 /chat_client
 
+# Build directory
+build/
+
 # Object files
 *.o
 
