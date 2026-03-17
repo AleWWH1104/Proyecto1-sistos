@@ -1,0 +1,25 @@
+# Generated protobuf files
+gen/
+
+# Compiled binaries (root only)
+/server
+/client
+/chat_server
+/chat_client
+
+# Object files
+*.o
+
+# Editor / IDE artifacts
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Generated protobuf source files (if outside gen/)
+*.pb.h
+*.pb.cc
