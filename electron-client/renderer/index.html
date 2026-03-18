@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ───────────────────────────────────────────── -->
+<div id="login-screen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">💬</div>
+    <h1>Chat</h1>
+    <p class="login-subtitle">Sistemas Operativos · UVG</p>
+
+    <div class="field">
+      <label>Usuario</label>
+      <input id="inp-username" type="text" placeholder="tu nombre" autocomplete="off"/>
+    </div>
+    <div class="field">
+      <label>IP del servidor</label>
+      <input id="inp-ip" type="text" placeholder="127.0.0.1" value="127.0.0.1"/>
+    </div>
+    <div class="field">
+      <label>Puerto</label>
+      <input id="inp-port" type="text" placeholder="8080" value="8080"/>
+    </div>
+
+    <button id="btn-connect" class="btn-primary">Conectar</button>
+    <p id="login-error" class="error-msg"></p>
+  </div>
+</div>
+
+<!-- ── CHAT SCREEN ────────────────────────────────────────────── -->
+<div id="chat-screen" class="screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="my-avatar" id="my-avatar">?</div>
+      <div class="my-info">
+        <span id="my-username-label">—</span>
+        <span id="my-status-badge" class="badge active">ACTIVO</span>
+      </div>
+      <button class="icon-btn" id="btn-status-menu" title="Cambiar status">⋮</button>
+    </div>
+
+    <!-- Status menu -->
+    <div id="status-menu" class="dropdown hidden">
+      <button data-status="0">🟢 Activo</button>
+      <button data-status="1">🟡 Ocupado</button>
+      <button data-status="2">⚪ Inactivo</button>
+    </div>
+
+    <!-- Users list -->
+    <div class="sidebar-search">
+      <input id="search-users" type="text" placeholder="Buscar usuario…"/>
+    </div>
+    <div class="users-list" id="users-list">
+      <!-- populated by JS -->
+    </div>
+
+    <button class="btn-refresh" id="btn-refresh">↻ Actualizar lista</button>
+    <button class="btn-quit" id="btn-quit">Salir</button>
+  </aside>
+
+  <!-- Main chat area -->
+  <main class="chat-main">
+    <div class="chat-header" id="chat-header">
+      <div class="chat-header-avatar" id="chat-header-avatar">G</div>
+      <div class="chat-header-info">
+        <span id="chat-header-name">Chat general</span>
+        <span id="chat-header-sub">todos los usuarios</span>
+      </div>
+      <button class="icon-btn" id="btn-info" title="Info usuario" style="display:none">ℹ</button>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-bar">
+      <input id="msg-input" type="text" placeholder="Escribe un mensaje…" autocomplete="off"/>
+      <button id="btn-send" class="btn-send">➤</button>
+    </div>
+  </main>
+</div>
+
+<!-- Info modal -->
+<div id="info-modal" class="modal hidden">
+  <div class="modal-card">
+    <h3 id="modal-username">—</h3>
+    <p>IP: <strong id="modal-ip">—</strong></p>
+    <p>Status: <strong id="modal-status">—</strong></p>
+    <button id="modal-close" class="btn-primary">Cerrar</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
