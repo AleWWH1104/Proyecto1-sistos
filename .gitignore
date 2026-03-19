@@ -26,3 +26,6 @@ Thumbs.db
 # Generated protobuf source files (if outside gen/)
 *.pb.h
 *.pb.cc
+
+**/node_modules/
+docs/
