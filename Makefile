@@ -40,7 +40,7 @@ ifeq ($(PLATFORM),windows)
                  $(wildcard $(PROTO_DIR)/server-side/*.proto)
 else ifeq ($(PLATFORM),macos)
     EXE_EXT    =
-    CXXFLAGS  += -pthread
+    CXXFLAGS  += -pthread $(shell pkg-config --cflags protobuf)
     LDFLAGS    = $(shell pkg-config --libs protobuf) -lpthread
     MKDIR      = mkdir -p
     RM_GEN     = rm -rf $(GEN_DIR)
