@@ -1,11 +1,8 @@
+#include "common/platform.h"
+
 #include <iostream>
 #include <string>
 #include <cstring>
-
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <netdb.h>
 
 #include "../common/net_utils.h"
 #include "receiver.h"
@@ -27,6 +24,9 @@ int main(int argc, char *argv[])
     std::string username = argv[1];
     std::string server_ip = argv[2];
     int server_port = std::stoi(argv[3]);
+
+    // Initialize Winsock on Windows (no-op on POSIX)
+    WinsockInit wsa; (void)wsa;
 
     // 1. Crear socket TCP
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
         if (!send_message(sockfd, MSG_REGISTER, payload))
         {
             std::cerr << "Error enviando registro." << std::endl;
-            close(sockfd);
+            platform_close_socket(sockfd);
             return 1;
         }
     }
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
         if (!recv_message(sockfd, type, payload))
         {
             std::cerr << "Sin respuesta del servidor." << std::endl;
-            close(sockfd);
+            platform_close_socket(sockfd);
             return 1;
         }
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
             if (!resp.is_successful())
             {
                 std::cerr << "[Error de registro]: " << resp.message() << std::endl;
-                close(sockfd);
+                platform_close_socket(sockfd);
                 return 1;
             }
             std::cout << "[Sistema]: " << resp.message() << std::endl;
@@ -110,6 +110,6 @@ int main(int argc, char *argv[])
     // 7. Hilo principal: manejar entrada del usuario
     input_loop(sockfd, username, my_ip);
 
-    close(sockfd);
+    platform_close_socket(sockfd);
     return 0;
 }

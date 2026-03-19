@@ -2,10 +2,10 @@
 #include "common/net_utils.h"
 #include "server/user_registry.h"
 
+#include "common/platform.h"
+
 #include <iostream>
-#include <poll.h>
 #include <string>
-#include <unistd.h>
 
 // Protobuf headers (all generated flat in gen/)
 #include "all_users.pb.h"
@@ -49,20 +49,20 @@ void handle_session(int client_fd, const std::string &client_ip,
   std::string payload;
 
   if (!recv_message(client_fd, type, payload)) {
-    close(client_fd);
+    platform_close_socket(client_fd);
     return;
   }
 
   if (type != MSG_REGISTER) {
     send_server_response(client_fd, 400, "Debe registrarse primero", false);
-    close(client_fd);
+    platform_close_socket(client_fd);
     return;
   }
 
   chat::Register reg_msg;
   if (!reg_msg.ParseFromString(payload)) {
     send_server_response(client_fd, 400, "Mensaje malformado", false);
-    close(client_fd);
+    platform_close_socket(client_fd);
     return;
   }
 
@@ -70,7 +70,7 @@ void handle_session(int client_fd, const std::string &client_ip,
 
   if (username.empty()) {
     send_server_response(client_fd, 400, "Nombre de usuario vacío", false);
-    close(client_fd);
+    platform_close_socket(client_fd);
     return;
   }
 
@@ -78,7 +78,7 @@ void handle_session(int client_fd, const std::string &client_ip,
   if (!registry.register_user(username, client_ip, client_fd)) {
     send_server_response(client_fd, 409, "Username or IP already registered",
                          false);
-    close(client_fd);
+    platform_close_socket(client_fd);
     return;
   }
 
@@ -253,7 +253,7 @@ void handle_session(int client_fd, const std::string &client_ip,
   // =======================================================================
   // Phase 3: Cleanup — MUST unregister BEFORE close
   // =======================================================================
-  registry.unregister_user(username); // FIRST: remove from registry
-  close(client_fd);                   // THEN: close socket
+  registry.unregister_user(username);        // FIRST: remove from registry
+  platform_close_socket(client_fd);          // THEN: close socket
   std::cout << "[Server] User '" << username << "' disconnected" << std::endl;
 }

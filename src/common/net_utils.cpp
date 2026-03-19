@@ -1,9 +1,7 @@
 #include "net_utils.h"
 
-#include <arpa/inet.h>
+#include "common/platform.h"
 #include <cstring>
-#include <sys/socket.h>
-#include <unistd.h>
 
 // Helper: read exactly `n` bytes from sockfd into buf.
 // Returns true on success, false if connection closed or error.

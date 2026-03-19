@@ -1,12 +1,9 @@
-#include <arpa/inet.h>
-#include <csignal>
+#include "common/platform.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <thread>
-#include <unistd.h>
 
 #include "session.h"
 #include "user_registry.h"
@@ -22,7 +19,7 @@ static int g_server_fd = -1;
 void shutdown_handler(int) {
   std::cout << "\n[Server] Shutting down..." << std::endl;
   if (g_server_fd >= 0)
-    close(g_server_fd);
+    platform_close_socket(g_server_fd);
 }
 
 // Inactivity checker thread function — runs forever, scanning all users
@@ -43,9 +40,14 @@ int main(int argc, char *argv[]) {
   }
   int port = std::atoi(argv[1]);
 
+  // Initialize Winsock on Windows (no-op on POSIX)
+  WinsockInit wsa; (void)wsa;
+
   // Ignore SIGPIPE globally — belt-and-suspenders with MSG_NOSIGNAL in
   // send_exact()
+#ifndef _WIN32
   signal(SIGPIPE, SIG_IGN);
+#endif
 
   // Register graceful shutdown handlers for SIGINT (Ctrl+C) and SIGTERM
   signal(SIGINT, shutdown_handler);
@@ -63,7 +65,8 @@ int main(int argc, char *argv[]) {
 
   // 3. Set SO_REUSEADDR for quick restart after crash/kill
   int opt = 1;
-  setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+  setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,
+             reinterpret_cast<const char*>(&opt), sizeof(opt));
 
   // 4. Bind to 0.0.0.0:port
   struct sockaddr_in server_addr{};
@@ -74,14 +77,14 @@ int main(int argc, char *argv[]) {
   if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) <
       0) {
     perror("bind");
-    close(server_fd);
+    platform_close_socket(server_fd);
     return 1;
   }
 
   // 5. Listen
   if (listen(server_fd, BACKLOG) < 0) {
     perror("listen");
-    close(server_fd);
+    platform_close_socket(server_fd);
     return 1;
   }
 
@@ -118,6 +121,6 @@ int main(int argc, char *argv[]) {
         .detach();
   }
 
-  close(server_fd);
+  platform_close_socket(server_fd);
   return 0;
 }
