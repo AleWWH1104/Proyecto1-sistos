@@ -4,29 +4,42 @@ Aplicación de chat cliente-servidor en C++ que utiliza **sockets TCP**, **multi
 
 ## Autores
 
-- **AleWWH1104** — Alessandra Wú
-- **Jonialen** — Jonathan Alonzo
-- **Qu3zada22** — Quezada
+- **Jonathan Diaz**
+- **Anggie Quezada**
+- **Iris Ayala**
 
 > Universidad del Valle de Guatemala — Sistemas Operativos, Semestre 7
 
 ## Requisitos
 
-- Linux (probado en Ubuntu/Debian)
+- **Plataformas soportadas**: Linux, macOS, Windows (MinGW/MSYS2)
 - g++ con soporte C++17
-- Protocol Buffers (protoc + libprotobuf-dev)
+- Protocol Buffers (protoc + libprotobuf)
 - pkg-config
-- pthread (incluido en la mayoría de distribuciones Linux)
+- pthread (incluido en Linux/macOS; provisto por MinGW en Windows)
 
-### Instalación de dependencias (Ubuntu/Debian)
+> El proyecto utiliza un `Makefile` con detección automática de sistema operativo y un header de compatibilidad `platform.h` para abstraer las diferencias entre plataformas.
 
+### Instalación de dependencias
+
+**Linux (Ubuntu/Debian):**
 ```bash
 sudo apt install protobuf-compiler libprotobuf-dev pkg-config g++
 ```
 
+**macOS (Homebrew):**
+```bash
+brew install protobuf pkg-config
+```
+
+**Windows (MSYS2 + MinGW):**
+```bash
+pacman -S mingw-w64-x86_64-protobuf
+```
+
 ## Compilación
 
-El proyecto utiliza un `Makefile` con los siguientes targets:
+El proyecto utiliza un `Makefile` multiplataforma con detección automática de OS y los siguientes targets:
 
 ```bash
 # Compilar todo (protos + servidor + cliente)
@@ -201,9 +214,11 @@ Proyecto1-sistos/
 
 ## Detalles técnicos
 
+- **Plataformas**: Linux, macOS, Windows (MinGW/MSYS2) — con `platform.h` para compatibilidad multiplataforma
 - **Estándar C++**: C++17 (`-std=c++17`)
 - **Flags de compilación**: `-Wall -Wextra -pthread`
 - **Linking**: `libprotobuf` via pkg-config + `-lpthread`
+- **Build system**: Makefile con detección automática de OS (`uname -s`)
 - **Backlog del servidor**: 10 conexiones pendientes (`BACKLOG = 10`)
 - **Intervalo de chequeo de inactividad**: 30 segundos (`INACTIVITY_CHECK_INTERVAL`)
 - **Timeout de inactividad**: 60 segundos (`INACTIVITY_TIMEOUT`)
