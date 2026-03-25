@@ -19,10 +19,10 @@ bool UserRegistry::register_user(const std::string &username,
   // NOTE: Duplicate IP check disabled for local testing
   // (allows multiple clients from 127.0.0.1 on the same machine).
   // Uncomment for production/deployment
-  // for (const auto &[name, info] : users_) {
-  //   if (info.ip == ip)
-  //     return false;
-  // }
+  for (const auto &[name, info] : users_) {
+    if (info.ip == ip)
+      return false;
+  }
 
   // Insert new user
   UserInfo ui;
